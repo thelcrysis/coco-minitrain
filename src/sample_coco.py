@@ -2,7 +2,7 @@ import json
 import argparse
 from random import shuffle
 from tqdm import tqdm
-
+from chi_square import calculate_chi_sqr
 from dataloader import CocoDataset
 from sampler_utils import (
     get_coco_object_size_info,
@@ -50,7 +50,8 @@ def sampling(dataset_train, parser):
     size_dict = get_coco_object_size_info(dataset_train)
     if parser.debug:
         print(
-            f"COCO object counts in each class for different sizes (S,M,L):\n{size_dict}"
+            f"""COCO object counts in each class for
+            different sizes (S,M,L):\n{size_dict}"""
         )
 
     # now sample!!
@@ -58,6 +59,7 @@ def sampling(dataset_train, parser):
     ratio_list = []
     best_diff = 1_000_000
     keys = []
+    chi_sqrs = []
     # get all keys in coco train set, total image count!
     for k, v in dataset_train.coco.imgToAnns.items():
         keys.append(k)
@@ -98,13 +100,19 @@ def sampling(dataset_train, parser):
         # ratios_obj_size = {}
 
         failed_run = False
+        number_of_annots = None
         for k, v in size_dict.items():
-            if not k in annot_sampled:
-                failed_run = True
-                break
+            if k not in annot_sampled.keys():
+                if parser.allow_empty_sample_classes:
+                    number_of_annots = 0
+                else:
+                    failed_run = True
+                    break
+            else:
+                number_of_annots = annot_sampled[k]
+            ratios_obj_count[k] = number_of_annots / float(v)
 
-            ratios_obj_count[k] = annot_sampled[k] / float(v)
-        if failed_run:
+        if not parser.allow_empty_sample_classes and failed_run:
             continue
 
         ratio_list.append(ratios_obj_count)
@@ -120,7 +128,14 @@ def sampling(dataset_train, parser):
 
         if parser.debug:
             print(f"Best difference:{best_diff}")
-
+        chi_sqrs.append(
+            calculate_chi_sqr(
+                pop=size_dict,
+                sample=annot_sampled,
+            )
+        )
+    print(f"Best difference:{best_diff}")
+    print("Chi squared test result", chi_sqrs[-1])
     return imgs_best_sample
 
 
@@ -134,7 +149,8 @@ def sampling_kp(dataset_train, parser):
     size_dict = get_coco_object_size_info_kp(dataset_train)
     if parser.debug:
         print(
-            f"COCO object counts in each class for different sizes (S,M,L):\n{size_dict}"
+            f"""COCO object counts in each class for
+             different sizes (S,M,L):\n{size_dict}"""
         )
 
     # now sample!!
@@ -189,13 +205,19 @@ def sampling_kp(dataset_train, parser):
         # ratios_obj_size = {}
 
         failed_run = False
+        number_of_annots = None
         for k, v in size_dict.items():
-            if not k in annot_sampled:
-                failed_run = True
-                break
+            if k not in annot_sampled.keys():
+                if parser.allow_empty_sample_classes:
+                    number_of_annots = 0
+                else:
+                    failed_run = True
+                    break
+            else:
+                number_of_annots = annot_sampled[k]
+            ratios_obj_count[k] = number_of_annots / float(v)
 
-            ratios_obj_count[k] = annot_sampled[k] / float(v)
-        if failed_run:
+        if not parser.allow_empty_sample_classes and failed_run:
             continue
 
         ratio_list.append(ratios_obj_count)
@@ -274,26 +296,14 @@ def main(args=None):
             for ann in v:
                 bbox = ann["bbox"]
                 class_id = ann["category_id"]
-                write_str = (
-                    f_name
-                    + ","
-                    + str(bbox[0])
-                    + ","
-                    + str(bbox[1])
-                    + ","
-                    + str(bbox[2])
-                    + ","
-                    + str(bbox[3])
-                    + ","
-                    + str(
+                write_str = f"""
+                    {f_name},{str(bbox[0])},{str(bbox[1])},
+                    {str(bbox[2])},{str(bbox[3])},
+                    {str(
                         dataset_train.labels[
                             dataset_train.coco_labels_inverse[class_id]
                         ]
-                    )
-                    + ","
-                    + "0"
-                    + "\n"
-                )
+                    )},0\n"""
 
                 csv_file.write(write_str)
 
