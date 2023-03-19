@@ -59,11 +59,13 @@ def download_images(id):
 with concurrent.futures.ThreadPoolExecutor() as executor:
     executor.map(download_images, img_ids)
 
+if args.output_dir != "" and args.output_dir[-1] != "\\":
+    args.output_dir += "/"
+
 with open("train2017.txt", "w") as f:
-    for i, file in enumerate(glob("*.jpg")):
+    for i, file in enumerate(glob(f"{args.output_dir}*.jpg")):
         f.write(f"{args.cwd}{file}")
         # last image path
-        if args.output_dir != "" and args.output_dir[-1] != "\\":
-            args.output_dir += "/"
+
         if i + 1 != len(glob(f"{args.output_dir}*.jpg")):
             f.write("\n")
