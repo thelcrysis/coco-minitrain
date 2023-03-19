@@ -19,7 +19,7 @@ parser.add_argument(
 parser.add_argument(
     "--cwd",
     type=str,
-    default="",
+    default=".",
     help="""Prefix (probably cwd) to add in front of every image
             (could be useful for preparing interactive jupyter notebooks)""",
 )
@@ -63,5 +63,7 @@ with open("train2017.txt", "w") as f:
     for i, file in enumerate(glob("*.jpg")):
         f.write(f"{args.cwd}{file}")
         # last image path
-        if i + 1 != len(glob("*.jpg")):
+        if args.output_dir != "" and args.output_dir[-1] != "\\":
+            args.output_dir += "/"
+        if i + 1 != len(glob(f"{args.output_dir}*.jpg")):
             f.write("\n")
