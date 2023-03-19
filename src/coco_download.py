@@ -64,7 +64,7 @@ if args.output_dir != "" and args.output_dir[-1] != "\\":
 
 with open("train2017.txt", "w") as f:
     for i, file in enumerate(glob(f"{args.output_dir}*.jpg")):
-        f.write(f"{args.cwd}{file}")
+        f.write(f"{file.split('/')[-1]}")
         # last image path
 
         if i + 1 != len(glob(f"{args.output_dir}*.jpg")):
