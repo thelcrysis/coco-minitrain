@@ -1,12 +1,12 @@
-from scipy.stats import chisquare
+from scipy.stats import entropy
 
 
-def calculate_chi_sqr(
+def calculate_kl_div(
     pop: dict,
     sample: dict,
 ) -> tuple[int, int]:
     """
-    Calculates Pearson's chi-squared test.
+    Calculates Kullback-Leibler divergence.
 
     Args:
         pop: population represented by dictionary where key is name
@@ -46,4 +46,6 @@ def calculate_chi_sqr(
     keys = sorted(scaled_pop.keys())
     values_pop = list(map(lambda x: scaled_pop[x], keys))
     values_sample = list(map(lambda x: complete_sample[x], keys))
-    return chisquare(f_obs=values_sample, f_exp=values_pop)
+    # usually pk is the true distribution while values sample,
+    # while qk is sample/approximation distribution
+    return entropy(pk=values_pop, qk=values_sample)

@@ -9,6 +9,7 @@ from sampler_utils import (
     get_coco_class_object_counts,
     get_coco_object_size_info_kp,
 )
+from test_kl_div import calculate_kl_div
 
 # default area ranges defined in coco
 areaRng = [32**2, 96**2, 1e5**2]
@@ -59,7 +60,6 @@ def sampling(dataset_train, parser):
     ratio_list = []
     best_diff = 1_000_000
     keys = []
-    chi_sqrs = []
     # get all keys in coco train set, total image count!
     for k, v in dataset_train.coco.imgToAnns.items():
         keys.append(k)
@@ -117,25 +117,24 @@ def sampling(dataset_train, parser):
 
         ratio_list.append(ratios_obj_count)
 
-        min_ratio = min(ratios_obj_count.values())
-        max_ratio = max(ratios_obj_count.values())
+        # min_ratio = min(ratios_obj_count.values())
+        # max_ratio = max(ratios_obj_count.values())
 
-        diff = max_ratio - min_ratio
-
+        # diff = max_ratio - min_ratio
+        diff = calculate_kl_div(pop=size_dict, sample=annot_sampled)
         if diff < best_diff:
             best_diff = diff
             imgs_best_sample = imgs
 
         if parser.debug:
-            print(f"Best difference:{best_diff}")
-        chi_sqrs.append(
-            calculate_chi_sqr(
-                pop=size_dict,
-                sample=annot_sampled,
+            print(f"Best score:{best_diff}")
+            print(
+                "Chi squared test result",
+                calculate_chi_sqr(
+                    pop=size_dict,
+                    sample=annot_sampled,
+                ),
             )
-        )
-    print(f"Best difference:{best_diff}")
-    print("Chi squared test result", chi_sqrs[-1])
     return imgs_best_sample
 
 
@@ -180,9 +179,7 @@ def sampling_kp(dataset_train, parser):
                 area = it["bbox"][2] * it["bbox"][3]
                 cat = it["category_id"]
                 num_kp = it["num_keypoints"]
-                if (
-                    num_kp == 0
-                ):  # if there is no KP annots then no need to include
+                if num_kp == 0:  # if there is no KP annots then no need to include
                     continue
                 if area < areaRng[0]:
                     kk = str(cat) + "_S"
@@ -250,9 +247,7 @@ def main(args=None):
         help="Save file name",
         default="person_keypoints_train2017_minicoco",
     )
-    parser.add_argument(
-        "--save_format", help="Save to json or csv", default="json"
-    )
+    parser.add_argument("--save_format", help="Save to json or csv", default="json")
     parser.add_argument(
         "--sample_image_count",
         help="How many images you want to sample",
@@ -265,12 +260,8 @@ def main(args=None):
         type=int,
         default=200000,
     )
-    parser.add_argument(
-        "--debug", help="Print useful info", action="store_true"
-    )
-    parser.add_argument(
-        "--sample_kp", help="Sample Keypoints", action="store_true"
-    )
+    parser.add_argument("--debug", help="Print useful info", action="store_true")
+    parser.add_argument("--sample_kp", help="Sample Keypoints", action="store_true")
     parser.add_argument(
         "--allow_empty_sample_classes",
         help="Allows for some classes in sample not to be represented.",
