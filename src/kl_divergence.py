@@ -17,6 +17,13 @@ def calculate_kl_div(
     Returns:
         chi-squared test statistic and p-value
     """
+    # Laplace smoothing
+    for key in pop.keys():
+        pop[key] += 1
+        if key not in sample:
+            sample[key] = 0
+        sample[key] += 1
+
     pop_size = sum(
         list(
             map(
