@@ -135,6 +135,29 @@ def sampling(dataset_train, parser):
                     sample=annot_sampled,
                 ),
             )
+    print("-" * 32)
+    print("Finished")
+    print("-" * 32)
+    print("Full COCO distribution")
+    print(size_dict)
+    print("-" * 32)
+    print("Sample distribution")
+    print(annot_sampled)
+    print("-" * 32)
+    print(
+        "Chi squared test result:",
+        calculate_chi_sqr(
+            pop=size_dict,
+            sample=annot_sampled,
+        ),
+    )
+    print(
+        "Best score: (KL divergence):",
+        calculate_kl_div(
+            pop=size_dict,
+            sample=annot_sampled,
+        ),
+    )
     return imgs_best_sample
 
 
