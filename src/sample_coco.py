@@ -9,7 +9,7 @@ from sampler_utils import (
     get_coco_class_object_counts,
     get_coco_object_size_info_kp,
 )
-from test_kl_div import calculate_kl_div
+from kl_divergence import calculate_kl_div
 
 # default area ranges defined in coco
 areaRng = [32**2, 96**2, 1e5**2]
