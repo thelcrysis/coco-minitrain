@@ -4,7 +4,7 @@ from scipy.stats import entropy
 def calculate_kl_div(
     pop: dict,
     sample: dict,
-) -> tuple[int, int]:
+):
     """
     Calculates Kullback-Leibler divergence.
 

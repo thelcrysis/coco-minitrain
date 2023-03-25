@@ -4,7 +4,7 @@ from scipy.stats import chisquare
 def calculate_chi_sqr(
     pop: dict,
     sample: dict,
-) -> tuple[int, int]:
+):
     """
     Calculates Pearson's chi-squared test.
 
