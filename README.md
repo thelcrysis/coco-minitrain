@@ -1,6 +1,6 @@
 # COCO `minitrain`
 
-[![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)] (https://www.kaggle.com/jacklouis777/coco-sampling)
+[![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://www.kaggle.com/jacklouis777/coco-sampling)
 
 COCO `minitrain` is a curated mini training set (25K images ≈ 20% of `train2017`) for COCO. It is useful for hyperparameter tuning and reducing the cost of ablation experiments. `minitrain`'s object instance statistics match those of `train2017` (see the [stats page](STATS.md)). `val2017` performance of a model trained on `minitrain` is strongly positively correlated with the performance of the same model trained on the full set, `train2017` (see the [Performance Correlation](https://github.com/giddyyupp/coco-minitrain#performance-correlation-of-train2017-and-minitrain) section below).
 
